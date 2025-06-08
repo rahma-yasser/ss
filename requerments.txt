@@ -1,9 +1,0 @@
-pydantic
-google
-typing_extensions
-fastapi
-uvicorn
-google-genai
-python-dotenv
-regex
-pandas
