@@ -4,7 +4,7 @@ from fastapi import FastAPI , Request , WebSocket
 from pydantic import BaseModel
 import os
 import asyncio
-import contextlib
+# import contextlib
 import pandas as pd
 import typing_extensions as typing
 
@@ -140,7 +140,7 @@ async def soft(num_q, websocket: WebSocket):
             evaluationJson=evaluate
             await websocket.send_json(evaluationJson) # هتحط ده 
             # time.sleep(60)
-            await asyncio.sleep(30)
+            await asyncio.sleep(20)
         df=pd.json_normalize(evaluation)
         # df.to_json('output.json', orient='records', indent=4)
         avgs=df.select_dtypes(include='number').mean().to_json(indent=4)
@@ -148,7 +148,11 @@ async def soft(num_q, websocket: WebSocket):
     finally:
         # Cancel ping task when done
         ping_task.cancel()
-        with contextlib.suppress(asyncio.CancelledError):
+        # with contextlib.suppress(asyncio.CancelledError):
+        #     await ping_task
+        try:
             await ping_task
+        except asyncio.CancelledError:
+            pass
 
     print("#"*50)
