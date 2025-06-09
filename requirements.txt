@@ -8,3 +8,5 @@ python-dotenv
 websockets==12.0
 regex
 pandas
+contextlib
+asyncio
