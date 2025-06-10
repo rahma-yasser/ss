@@ -1,11 +1,9 @@
 pydantic
-google
 typing_extensions
 fastapi>=0.100.0,<0.111.0
 uvicorn>=0.20.0,<0.31.0
-google-generativeai>=0.3.0,<=0.8.5
-python-dotenv
-websockets==12.0
+google-genai
 regex
 pandas
 asyncio
+websockets==12.0
