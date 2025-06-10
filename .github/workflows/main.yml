@@ -43,6 +43,14 @@ jobs:
         # Set the Heroku remote for Git
         heroku git:remote -a $HEROKU_APP_NAME
 
+    - name: Configure Git Credentials for Heroku
+      env:
+        HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
+      run: |
+        # Configure Git to use HEROKU_API_KEY for HTTPS authentication
+        git config --global credential.helper store
+        echo "https://_:${HEROKU_API_KEY}@git.heroku.com" > ~/.git-credentials
+
     - name: Deploy to Heroku
       env:
         HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
