@@ -18,7 +18,7 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@v5
       with:
-        python-version: '3.12'  # Downgraded for compatibility
+        python-version: '3.12'
 
     - name: Install dependencies
       run: |
@@ -35,33 +35,35 @@ jobs:
         HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
         HEROKU_APP_NAME: my-python-app-${{ github.run_id }}
       run: |
-        if heroku apps:info --app $HEROKU_APP_NAME > /dev/null 2>&1; then
+        # Validate app name (lowercase, alphanumeric, dashes only)
+        if ! echo "$HEROKU_APP_NAME" | grep -Eq '^[a-z0-9-]{1,30}$'; then
+          echo "Error: Invalid Heroku app name '$HEROKU_APP_NAME'. Must be 1-30 characters, lowercase, alphanumeric, or dashes."
+          exit 1
+        fi
+        # Check if app exists, create if it doesn't
+        if heroku apps:info --app "$HEROKU_APP_NAME" > /dev/null 2>&1; then
           echo "Heroku app $HEROKU_APP_NAME already exists."
         else
           echo "Creating Heroku app $HEROKU_APP_NAME..."
-          heroku create $HEROKU_APP_NAME
-          heroku buildpacks:set heroku/python -a $HEROKU_APP_NAME
+          heroku create "$HEROKU_APP_NAME" --no-remote
+          heroku buildpacks:set heroku/python --app "$HEROKU_APP_NAME"
         fi
-        heroku git:remote -a $HEROKU_APP_NAME
+        # Set git remote
+        heroku git:remote --app "$HEROKU_APP_NAME"
 
     - name: Set Heroku Environment Variables
       env:
         HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
         HEROKU_APP_NAME: my-python-app-${{ github.run_id }}
       run: |
-        # Example: Set environment variables (replace KEY=VALUE as needed)
-        heroku config:set PYTHONPATH=/app -a $HEROKU_APP_NAME
-
-    - name: Configure Git Credentials for Heroku
-      env:
-        HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
-      run: |
-        git config --global credential.helper store
-        echo "https://_:${HEROKU_API_KEY}@git.heroku.com" > ~/.git-credentials
+        heroku config:set PYTHONPATH=/app --app "$HEROKU_APP_NAME"
 
     - name: Deploy to Heroku
       env:
         HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
         HEROKU_APP_NAME: my-python-app-${{ github.run_id }}
       run: |
+        # Configure git credentials for Heroku
+        git config --global credential.helper store
+        echo "https://api:${HEROKU_API_KEY}@git.heroku.com/$HEROKU_APP_NAME.git" > ~/.git-credentials
         git push heroku main
