@@ -1,9 +1,11 @@
-pydantic
-typing_extensions
-fastapi>=0.100.0,<0.111.0
-uvicorn>=0.20.0,<0.31.0
 google-genai
-regex
-pandas
-asyncio
+pydantic==2.11.5
+typing_extensions==4.14.0
+fastapi==0.110.3
+uvicorn==0.30.6
+google-generativeai==0.8.5
+regex==2024.11.6
+pandas==2.3.0
+asyncio==3.4.3
 websockets==12.0
+gunicorn==23.0.0  # Added for production stability
