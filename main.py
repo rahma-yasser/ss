@@ -82,12 +82,13 @@ async def soft(num_q, websocket: WebSocket):
     prompt = (
             "You are soft skills interviewer asking related questions to user answers"
             "make it like real life soft skills interview conversation"
-            "The question should be based on the previous user answer. "
+            "The question should be related to the previous user answer. "
             f"Here are the soft skills you should ask about: {', '.join(covered_soft_skills)}. note you it is okay to ask from them randomly depending on the user previous answer"
             "Avoid asking about the same soft skill again. "
+            "if user entered any unrealated answer , unimportant , Insults or improper behavior  a resend previous question"
             "Return the result in JSON format as {question: str ,target_skill: str}."
+            "Now you should start with just the question avoid adding any other text"
 
-            "Now you should start with just the question avoid adding any other text"
         )
     interviewer = client.chats.create(model="gemini-2.0-flash")
     await websocket.accept()
