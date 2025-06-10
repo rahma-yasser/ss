@@ -11,14 +11,14 @@ jobs:
 
     steps:
     - name: Checkout code
-      uses: actions/checkout@v2
+      uses: actions/checkout@v4
       with:
-        fetch-depth: 0  # Fetch full repository history
+        fetch-depth: 0
 
     - name: Set up Python
-      uses: actions/setup-python@v2
+      uses: actions/setup-python@v5
       with:
-        python-version: '3.13'
+        python-version: '3.12'  # Downgraded for compatibility
 
     - name: Install dependencies
       run: |
@@ -35,21 +35,27 @@ jobs:
         HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
         HEROKU_APP_NAME: my-python-app-${{ github.run_id }}
       run: |
-        # Check if the app exists
         if heroku apps:info --app $HEROKU_APP_NAME > /dev/null 2>&1; then
           echo "Heroku app $HEROKU_APP_NAME already exists."
         else
           echo "Creating Heroku app $HEROKU_APP_NAME..."
           heroku create $HEROKU_APP_NAME
+          heroku buildpacks:set heroku/python -a $HEROKU_APP_NAME
         fi
-        # Set the Heroku remote for Git
         heroku git:remote -a $HEROKU_APP_NAME
+
+    - name: Set Heroku Environment Variables
+      env:
+        HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
+        HEROKU_APP_NAME: my-python-app-${{ github.run_id }}
+      run: |
+        # Example: Set environment variables (replace KEY=VALUE as needed)
+        heroku config:set PYTHONPATH=/app -a $HEROKU_APP_NAME
 
     - name: Configure Git Credentials for Heroku
       env:
         HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
       run: |
-        # Configure Git to use HEROKU_API_KEY for HTTPS authentication
         git config --global credential.helper store
         echo "https://_:${HEROKU_API_KEY}@git.heroku.com" > ~/.git-credentials
 
