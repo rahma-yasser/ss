@@ -7,4 +7,5 @@ gunicorn==22.0.0  # Added for production stability
 regex==2024.11.6
 pandas==2.3.0
 asyncio==3.4.3
-websockets==12.0
+websockets>=13.0.0,<15.1.0
+
