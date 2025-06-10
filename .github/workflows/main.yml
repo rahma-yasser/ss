@@ -23,9 +23,33 @@ jobs:
         python -m pip install --upgrade pip
         pip install -r requirements.txt
 
+    - name: Install Heroku CLI
+      run: |
+        curl https://cli-assets.heroku.com/install-ubuntu.sh | sh
+        heroku --version
+
+    - name: Log in to Heroku
+      env:
+        HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
+      run: |
+        echo $HEROKU_API_KEY | heroku login --api-key
+
+    - name: Check or Create Heroku App
+      env:
+        HEROKU_APP_NAME: my-python-app-${{ github.run_id }}
+      run: |
+        # Check if the app exists
+        if heroku apps:info --app $HEROKU_APP_NAME > /dev/null 2>&1; then
+          echo "Heroku app $HEROKU_APP_NAME already exists."
+        else
+          echo "Creating Heroku app $HEROKU_APP_NAME..."
+          heroku create $HEROKU_APP_NAME
+        fi
+        # Set the Heroku remote for Git
+        heroku git:remote -a $HEROKU_APP_NAME
+
     - name: Deploy to Heroku
-      uses: akhileshns/heroku-deploy@v3.12.12
-      with:
-        heroku_api_key: ${{ secrets.HEROKU_API_KEY }}
-        heroku_app_name: amr1sokrat2
-        heroku_email: moohammed637@gmail.com
+      env:
+        HEROKU_APP_NAME: my-python-app-${{ github.run_id }}
+      run: |
+        git push heroku main
